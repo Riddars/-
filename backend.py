@@ -83,13 +83,14 @@ async def index_docs_with_embeddings(docs: list[Document]):
     try:
         for doc in docs:
             embedding = embed_text(doc.content)  # Vectorization
-            client.collections.create(
-                name="TestArticle",
-                properties=[
-                    Property(name="content", data_type=DataType.TEXT),
-                    Property(name="dataframe", data_type=DataType.TEXT),
-                    Property(name="keywords", data_type=DataType.TEXT_ARRAY)
-                ]
+            response = client.data_object.create(
+                data_object={
+                    "content": embedding,
+                    "dataframe": doc.dataframe,
+                    "keywords": doc.keywords,
+                },
+                class_name="TestArticle",
+                vector=embedding.tolist()  # Ensure the vector is a list
             )
         return {"message": "Documents indexed with embeddings"}
     except Exception as e:
