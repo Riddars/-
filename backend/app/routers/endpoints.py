@@ -1,9 +1,10 @@
 import json
+from weaviate.classes.query import Filter
 
 from fastapi import APIRouter
 
 from ..database.database import ensure_client_connected, client
-from ..embending.embending import embed_text
+from ..embending.embending import embed_text, extract_keywords
 from ..models.models import Document, SearchQuery
 
 router = APIRouter()
@@ -37,17 +38,31 @@ async def index_docs_with_embeddings(docs: list[Document]):
 async def search_with_llm(query: SearchQuery):
     ensure_client_connected()
     text = query.text
+    dataframe = query.dataframe
     top_k = query.top_k
 
     query_embedding = embed_text(text)
-    near_vector = {"vector": query_embedding.tolist()}
+    keywords = extract_keywords(text)
 
     paragraphs = client.collections.get("Paragraphs")
-    result = paragraphs.query.near_vector(
-        query_embedding,
+    result = paragraphs.query.hybrid(
+        query=text,
+        filters=(
+            Filter.all_of([
+                Filter.by_property("dataframe").equal(dataframe),
+                Filter.by_property("keywords").contains_any(keywords)
+            ])
+        ),
+        vector=query_embedding,
         limit=top_k
     )
-    res = ""
+    seen = set()
+    unique_objects = []
     for obj in result.objects:
-        res += json.dumps(obj.properties, indent=2)
-    return res
+        obj_properties_json = json.dumps(obj.properties, sort_keys=True)
+        if obj_properties_json not in seen:
+            seen.add(obj_properties_json)
+            unique_objects.append(obj.properties)
+
+    response = json.dumps(unique_objects, indent=2, ensure_ascii=False)
+    return response

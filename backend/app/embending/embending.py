@@ -1,3 +1,4 @@
+import yake
 from transformers import AutoTokenizer, AutoModel
 import torch
 
@@ -15,8 +16,11 @@ def embed_text(text):
     return embeddings.squeeze().numpy()
 
 
-# Функция для извлечения ключевых слов с использованием Yape
-# def extract_keywords(text):
-#     extractor = yape.KeywordExtractor()
-#     keywords = extractor.extract_keywords(text)
-#     return [keyword for keyword, score in keywords]
+#Функция для извлечения ключевых слов с использованием Yape
+def extract_keywords(text):
+    extractor = yake.KeywordExtractor(
+        lan="en",
+        top=4
+    )
+    keywords = extractor.extract_keywords(text)
+    return [keyword for keyword, score in keywords]
