@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlalchemy
+pymorphy3
+sentence-transformers
+numpy
+scikit-learn
