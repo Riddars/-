@@ -38,18 +38,19 @@ async def index_docs_with_embeddings(docs: list[Document]):
 async def search_with_llm(query: SearchQuery):
     ensure_client_connected()
     text = query.text
-    dataframe = query.dataframe
+    filter_by = query.filter_by
     top_k = query.top_k
+    keywords = query.keywords
 
     query_embedding = embed_text(text)
-    keywords = extract_keywords(text)
+    #keywords = extract_keywords(text)
 
     paragraphs = client.collections.get("Paragraphs")
     result = paragraphs.query.hybrid(
         query=text,
         filters=(
             Filter.all_of([
-                Filter.by_property("dataframe").equal(dataframe),
+                Filter.by_property("dataframe").equal(filter_by),
                 Filter.by_property("keywords").contains_any(keywords)
             ])
         ),

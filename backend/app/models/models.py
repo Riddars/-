@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 class SearchQuery(BaseModel):
     text: str
-    dataframe: str
+    keywords: list[str] = []
+    filter_by: str
     top_k: int
 
 

@@ -1,10 +1,62 @@
 import streamlit as st
+import re
+from keybert import KeyBERT
+import warnings
+import requests
 
-# Определяем меню для переключения между страницами
+warnings.filterwarnings("ignore", category=UserWarning)
+
+kw_model = KeyBERT(model='paraphrase-multilingual-MiniLM-L12-v2')
+
+
+def extract_keywords(text, top_n=5):
+    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), top_n=top_n)
+    return [kw[0] for kw in keywords]
+
+
 page = st.sidebar.selectbox(
     "Выберите страницу",
     ["Индексация документов", "Поиск информации"]
 )
+
+
+def send_data_to_server(paragraphs):
+    url = "http://0.0.0.0:8000/indexing"
+    payload = {"dataset_name_or_docs": paragraphs}
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Ошибка сервера: {response.status_code}", "details": response.text}
+    except Exception as e:
+        return {"error": f"Ошибка при отправке данных: {str(e)}"}
+
+
+def send_search_request(query_text, keywords, tags, top_k):
+    url = "http://0.0.0.0:8000/searching"
+    payload = {
+        "text": query_text,
+        "keywords": keywords,
+        "filter_by": tags if tags else [],
+        "top_k": top_k
+    }
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Ошибка сервера: {response.status_code}", "details": response.text}
+    except Exception as e:
+        return {"error": f"Ошибка при отправке запроса: {str(e)}"}
+
+
+def split_into_paragraphs(text):
+    paragraphs = re.split(r'\n\s*\n+|\r\n\s*\r\n+', text)
+    paragraphs = [p.strip() for p in paragraphs if p.strip()]
+
+    return paragraphs
+
 
 # --------------------------------
 # Страница 1: Индексация документов
@@ -12,29 +64,58 @@ page = st.sidebar.selectbox(
 if page == "Индексация документов":
     st.title("Индексация документов")
 
-    # Загрузка документа
     uploaded_file = st.file_uploader("Загрузите документ (.txt)", type="txt")
 
-    # Поле для ввода тега
     tag_option = st.selectbox(
-        "Выберите тег из существующих или введите новый",
-        options=["ТЕГ_1", "ТЕГ_2", "ТЕГ_3"],  # Пример существующих тегов
-        help="Вы можете выбрать один из существующих тегов или ввести новый ниже."
+        "Выберите тег",
+        options=["Техническая литература",
+                 "Энциклопедии и справочники",
+                 "Философская и научно-популярная литература",
+                 "Фэнтези",
+                 "Научная фантастика",
+                 "Детективы и триллеры",
+                 "Художественная литература",
+                 "Романтика",
+                 "Приключения", ],
+        help="Вы можете выбрать тег, описывающий жанр вашего текста, для дальнейшего использования при поиске"
     )
-    custom_tag = st.text_input("Введите новый тег (если необходимо)")
 
-    # Объединение выбора и пользовательского ввода тега
-    selected_tag = custom_tag if custom_tag else tag_option
-
-    # Кнопка для загрузки документа
     if st.button("Загрузить документ"):
-        if uploaded_file and selected_tag:
+        if uploaded_file and tag_option:
             document_text = uploaded_file.read().decode("utf-8")
-            st.success("Документ успешно загружен!")
-            st.write(f"Содержимое документа:\n{document_text}")
-            st.write(f"Применённый тег: {selected_tag}")
+
+            paragraphs = split_into_paragraphs(document_text)
+
+            data_to_send = []
+            st.write("Обработка файла, пожалуйста, подождите")
+            progress_bar = st.progress(0)
+            total_paragraphs = len(paragraphs)
+
+            for idx, paragraph in enumerate(paragraphs):
+                keywords = extract_keywords(paragraph, top_n=5)
+                data_to_send.append({
+                    "content": paragraph,
+                    "dataframe": tag_option,
+                    "keywords": keywords
+                })
+
+                progress_bar.progress((idx + 1) / total_paragraphs)
+
+            st.write("Отправка данных на сервер...")
+            result = send_data_to_server(data_to_send)
+
+            if "error" in result:
+                st.error(f"Ошибка: {result['error']}")
+            else:
+                st.success(result.get("message", "Данные успешно отправлены!"))
+                st.json(result.get("processed_data", []))
+
+            progress_bar.empty()
+
         else:
             st.error("Пожалуйста, загрузите файл и укажите тег.")
+
+
 
 # -------------------------------
 # Страница 2: Поиск информации
@@ -42,44 +123,50 @@ if page == "Индексация документов":
 elif page == "Поиск информации":
     st.title("Поиск информации")
 
-    # Поле для ввода текста запроса
-    query_text = st.text_input("Введите текст запроса", help="Введите текст запроса для поиска информации.")
-    if not query_text:
-        st.warning("Поле запроса обязательно для заполнения.")
+    query_text = st.text_area("Введите текст запроса", help="Введите текст для поиска информации.")
 
-    # Поле для фильтрации по тегу
     st.subheader("Фильтрация по тегам")
-    available_tags = ["ТЕГ_1", "ТЕГ_2", "ТЕГ_3"]  # Пример существующих тегов
+    available_tags = ["Техническая литература",
+                      "Энциклопедии и справочники",
+                      "Философская и научно-популярная литература",
+                      "Фэнтези",
+                      "Научная фантастика",
+                      "Детективы и триллеры",
+                      "Художественная литература",
+                      "Романтика",
+                      "Приключения", ]
     selected_tags = st.multiselect(
         "Выберите один или несколько тегов из списка (опционально):",
         options=available_tags,
         help="Выберите теги для фильтрации результатов."
     )
 
-    # Поле выбора количества результатов
     top_k = st.number_input(
         "Количество результатов (Top-K):",
         min_value=1,
         max_value=100,
-        value=5,
+        value=3,
         step=1,
         help="Укажите количество результатов, которые нужно вернуть."
     )
 
-    # Кнопка поиска
     if st.button("Найти"):
         if query_text:
-            # Пример: Заглушка для результатов
-            st.success("Поиск выполнен успешно!")
-            st.subheader("Результаты:")
-            results = [
-                {"content": "Пример параграфа 1", "tag": "ТЕГ_1"},
-                {"content": "Пример параграфа 2", "tag": "ТЕГ_2"},
-                {"content": "Пример параграфа 3", "tag": "ТЕГ_3"},
-            ]
-            for idx, result in enumerate(results[:top_k], start=1):
-                st.write(f"**Результат {idx}:**")
-                st.write(f"Текст: {result['content']}")
-                st.write(f"Тег: {result['tag']}")
+            st.write("Извлечение ключевых слов...")
+            keywords = extract_keywords(query_text, top_n=5)
+            st.write(f"**Ключевые слова:** {', '.join(keywords)}")
+
+            st.write("Отправка запроса на сервер...")
+            result = send_search_request(query_text, keywords, selected_tags, top_k)
+
+            if "error" in result:
+                st.error(f"Ошибка: {result['error']}")
+            else:
+                st.success("Поиск выполнен успешно!")
+                st.subheader("Результаты:")
+                for idx, item in enumerate(result.get("response", []), start=1):
+                    st.write(f"**Результат {idx}:**")
+                    st.write(f"{item['content']}")
+                    st.write(f"Схожесть: {item['similarity']:.4f}")
         else:
             st.error("Поле запроса обязательно для выполнения поиска.")
