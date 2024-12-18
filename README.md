@@ -99,8 +99,8 @@ sudo systemctl enable docker
 ### Шаг 2. Создание и запуск контейнера
 1. **Склонируйте репозиторий проекта:**
 ```bash
-git clone https://github.com/repository-name.git
-cd repository-name
+git clone https://github.com/Riddars/RAG-BOBER.git
+cd RAG-BOBER
 ```
 
 2. **Соберите Docker-образ:**
