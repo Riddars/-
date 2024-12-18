@@ -1,3 +1,7 @@
+# RAG Бобёр
+## Реализация Кейса №3 "Сервис поиска параграфов"
+<img src="img/logo.jpg" width="10%">
+
 # Запуск
 ```bash
 docker-compose up
