@@ -88,7 +88,7 @@ docker build -t rag-beaver .
 
 3. **Запустите контейнер:**
 ```bash
-docker run -d -p 5000:5000 --name rag-beaver-container rag-beaver
+docker run -d -p 8501:8501 -p 5000:5000 --name rag-beaver-container rag-beaver
 ```
 
 После запуска веб-интерфейс будет доступен по адресу `http://localhost:8501`.
