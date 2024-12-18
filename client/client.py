@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 kw_model = KeyBERT(model='paraphrase-multilingual-MiniLM-L12-v2')
 
-def extract_keywords(text, top_n=5):
+def extract_keywords(text, top_n=10):
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), top_n=top_n)
     return [kw[0] for kw in keywords]
 
