@@ -1,7 +1,8 @@
-import yake
+from keybert import KeyBERT
 from transformers import AutoTokenizer, AutoModel
 import torch
 
+from frontend.main import kw_model
 
 # Модель для генерации эмбеддингов
 model_name = "intfloat/e5-large-v2"
@@ -16,11 +17,8 @@ def embed_text(text):
     return embeddings.squeeze().numpy()
 
 
-#Функция для извлечения ключевых слов с использованием Yape
-def extract_keywords(text):
-    extractor = yake.KeywordExtractor(
-        lan="en",
-        top=4
-    )
-    keywords = extractor.extract_keywords(text)
-    return [keyword for keyword, score in keywords]
+# Извлечение ключевых слов с использованием
+def extract_keywords(text, top_n=10):
+    kw_model = KeyBERT(model='paraphrase-multilingual-MiniLM-L12-v2')
+    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), top_n=top_n)
+    return [kw[0] for kw in keywords]

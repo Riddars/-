@@ -1,3 +1,5 @@
+import json
+
 import streamlit as st
 import re
 from keybert import KeyBERT
@@ -21,8 +23,9 @@ page = st.sidebar.selectbox(
 
 
 def send_data_to_server(paragraphs):
-    url = "http://0.0.0.0:8000/indexing"
-    payload = {"dataset_name_or_docs": paragraphs}
+    url = "http://localhost:8000/indexing"
+    payload = {"dataset_name_or_docs": data_to_send}
+
     try:
         response = requests.post(url, json=payload)
         if response.status_code == 200:
@@ -34,7 +37,7 @@ def send_data_to_server(paragraphs):
 
 
 def send_search_request(query_text, keywords, tags, top_k):
-    url = "http://0.0.0.0:8000/searching"
+    url = "http://localhost:8000/searching"
     payload = {
         "text": query_text,
         "keywords": keywords,
@@ -92,7 +95,7 @@ if page == "Индексация документов":
             total_paragraphs = len(paragraphs)
 
             for idx, paragraph in enumerate(paragraphs):
-                keywords = extract_keywords(paragraph, top_n=5)
+                keywords = extract_keywords(paragraph, top_n=10)
                 data_to_send.append({
                     "content": paragraph,
                     "dataframe": tag_option,
@@ -167,6 +170,5 @@ elif page == "Поиск информации":
                 for idx, item in enumerate(result.get("response", []), start=1):
                     st.write(f"**Результат {idx}:**")
                     st.write(f"{item['content']}")
-                    st.write(f"Схожесть: {item['similarity']:.4f}")
         else:
             st.error("Поле запроса обязательно для выполнения поиска.")

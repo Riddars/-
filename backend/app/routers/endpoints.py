@@ -5,23 +5,26 @@ from fastapi import APIRouter
 
 from ..database.database import ensure_client_connected, client
 from ..embending.embending import embed_text, extract_keywords
-from ..models.models import Document, SearchQuery
+from ..models.models import Document, SearchQuery, IndexRequest
 
 router = APIRouter()
 
 
 @router.post("/indexing")
-async def index_docs_with_embeddings(docs: list[Document]):
+async def index_docs_with_embeddings(json_input: IndexRequest):
     try:
         ensure_client_connected()
-        for doc in docs:
-            embedding = embed_text(doc.content)
+        for item in json_input.dataset_name_or_docs:
+            document = Document(content=item.get("content", ""), dataframe=item.get("dataframe", None),
+                                keywords=item.get("keywords", []))
+
+            embedding = embed_text(document.content)
             with client.batch.dynamic() as batch:
                 batch.add_object(
                     properties={
-                        "content": doc.content,
-                        "dataframe": doc.dataframe,
-                        "keywords": doc.keywords,
+                        "content": document.content,
+                        "dataframe": document.dataframe,
+                        "keywords": document.keywords,
                     },
                     vector=embedding.tolist(),
                     collection="Paragraphs"
@@ -43,14 +46,15 @@ async def search_with_llm(query: SearchQuery):
     keywords = query.keywords
 
     query_embedding = embed_text(text)
-    #keywords = extract_keywords(text)
+    if not keywords:
+        keywords = extract_keywords(text)
 
     paragraphs = client.collections.get("Paragraphs")
     result = paragraphs.query.hybrid(
         query=text,
         filters=(
             Filter.all_of([
-                Filter.by_property("dataframe").equal(filter_by),
+                Filter.by_property("dataframe").contains_any(filter_by),
                 Filter.by_property("keywords").contains_any(keywords)
             ])
         ),
@@ -65,5 +69,4 @@ async def search_with_llm(query: SearchQuery):
             seen.add(obj_properties_json)
             unique_objects.append(obj.properties)
 
-    response = json.dumps(unique_objects, indent=2, ensure_ascii=False)
-    return response
+    return {"response": unique_objects}

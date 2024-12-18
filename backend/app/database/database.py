@@ -6,7 +6,8 @@ from weaviate.client_base import ConnectionParams
 connection_params = ConnectionParams(
     http={
         "host": "localhost",  # Хост Weaviate-сервера
-        "port": 8080,
+        "port": 8080
+        ,
         "secure": False,
     },
     grpc={
