@@ -40,37 +40,37 @@ http://localhost:8000/docs
 ## Описание структуры проекта
 Проект состоит из следующих ключевых компонентов:
 
-RAG-BOBER/
-│
-├── backend/
-│   ├── app/
-│   │   ├── database/
-│   │   │   ├── __init__.py
-│   │   │   └── database.py
-│   │   │
-│   │   ├── embending/
-│   │   │   ├── __init__.py
-│   │   │   └── embending.py
-│   │   │
-│   │   ├── models/
-│   │   │   ├── __init__.py
-│   │   │   └── models.py
-│   │   │
-│   │   └── routers/
-│   │       ├── __init__.py
-│   │       ├── endpoints.py
-│   │       └── main.py
-│   │
-│   ├── Dockerfile
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── Dockerfile
-│   ├── main.py
-│   └── requirements.txt
-│
-├── .gitignore
-└── docker-compose.yml
+RAG-BOBER/<br>
+│<br>
+├── backend/<br>
+│   ├── app/<br>
+│   │   ├── database/<br>
+│   │   │   ├── __init__.py<br>
+│   │   │   └── database.py<br>
+│   │   │<br>
+│   │   ├── embending/<br>
+│   │   │   ├── __init__.py<br>
+│   │   │   └── embending.py<br>
+│   │   │<br>
+│   │   ├── models/<br>
+│   │   │   ├── __init__.py<br>
+│   │   │   └── models.py<br>
+│   │   │<br>
+│   │   └── routers/<br>
+│   │       ├── __init__.py<br>
+│   │       ├── endpoints.py<br>
+│   │       └── main.py<br>
+│   │<br>
+│   ├── Dockerfile<br>
+│   └── requirements.txt<br>
+│<br>
+├── frontend/<br>
+│   ├── Dockerfile<br>
+│   ├── main.py<br>
+│   └── requirements.txt<br>
+│<br>
+├── .gitignore<br>
+└── docker-compose.yml<br>
 
 
 ---
