@@ -110,12 +110,12 @@ cd repository-name
 
 2. **Соберите Docker-образ:**
 ```bash
-docker build -t rag-beaver .
+docker-compose build
 ```
 
-3. **Запустите контейнер:**
+3. **Запустите docker-compose:**
 ```bash
-docker run -d -p 8501:8501 -p 5000:5000 --name rag-beaver-container rag-beaver
+docker-compose up
 ```
 
 После запуска веб-интерфейс будет доступен по адресу `http://localhost:8501`.
