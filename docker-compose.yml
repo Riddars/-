@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Сервис для Weaviate
   weaviate:
     image: semitechnologies/weaviate:latest
     environment:
@@ -15,27 +14,18 @@ services:
       - weaviate_data:/var/lib/weaviate
     restart: always
 
-  # Сервис для бэкенда
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
-    environment:
-      - WEAVIATE_URL=http://weaviate:8080
-    ports:
-      - "8000:8000"
+      context: ./backend
+      dockerfile: Dockerfile
     depends_on:
       - weaviate
-    restart: always
-
-  # Сервис для фронтенда
-  frontend:
-    build:
-      context: ./frontend
+    environment:
+      - PYTHONPATH=/app
     ports:
-      - "8501:8501"
-    depends_on:
-      - backend
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
     restart: always
 
 volumes:
