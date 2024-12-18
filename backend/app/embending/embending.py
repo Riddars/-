@@ -16,7 +16,6 @@ def embed_text(text):
     return embeddings.squeeze().numpy()
 
 
-# Извлечение ключевых слов с использованием
 def extract_keywords(text, top_n=10):
     kw_model = KeyBERT(model='distilbert-base-nli-mean-tokens')
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), top_n=top_n)

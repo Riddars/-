@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 kw_model = KeyBERT(model='distilbert-base-nli-mean-tokens')
 
 
-def extract_keywords(text, top_n=5):
+def extract_keywords(text, top_n=10):
     keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), top_n=top_n)
     return [kw[0] for kw in keywords]
 
@@ -24,7 +24,6 @@ page = st.sidebar.selectbox(
 
 def send_data_to_server(paragraphs):
     url = "http://backend:8000/indexing"
-    # payload = {"dataset_name_or_docs": paragraphs}
     payload = paragraphs
     try:
         response = requests.post(url, json=payload)
@@ -156,7 +155,7 @@ elif page == "Поиск информации":
     if st.button("Найти"):
         if query_text:
             st.write("Извлечение ключевых слов...")
-            keywords = extract_keywords(query_text, top_n=5)
+            keywords = extract_keywords(query_text, top_n=10)
             st.write(f"**Ключевые слова:** {', '.join(keywords)}")
 
             st.write("Отправка запроса на сервер...")
