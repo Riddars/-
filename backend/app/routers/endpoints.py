@@ -29,7 +29,7 @@ async def index_docs_with_embeddings(json_input: List[Document]):
                         "keywords": document.keywords,
                     },
                     vector=embedding.tolist(),
-                    collection="Paragraphs"
+                    collection="Data_base_paragraphs"
                 )
         return {"message": "Documents indexed with embeddings"}
     except Exception as e:
@@ -51,7 +51,7 @@ async def search_with_llm(query: SearchQuery):
     if not keywords:
         keywords = extract_keywords(text)
 
-    paragraphs = client.collections.get("Paragraphs")
+    paragraphs = client.collections.get("Data_base_paragraphs")
     result = paragraphs.query.hybrid(
         query=text,
         filters=(
@@ -63,10 +63,19 @@ async def search_with_llm(query: SearchQuery):
         vector=query_embedding,
         limit=top_k
     )
+
+    print(client.collections.get("Data_base_paragraphs"))
+
     seen = set()
     unique_objects = []
     for obj in result.objects:
         obj_properties_json = json.dumps(obj.properties, sort_keys=True)
+        print(obj.vector)
+        data_object = paragraphs.query.fetch_object_by_id(
+            obj.uuid,
+            include_vector=True
+        )
+        print(f"Object with vector = {data_object.vector['default']}")
         if obj_properties_json not in seen:
             seen.add(obj_properties_json)
             unique_objects.append(obj.properties)
