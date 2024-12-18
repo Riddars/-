@@ -8,7 +8,7 @@ import requests
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-kw_model = KeyBERT(model='paraphrase-multilingual-MiniLM-L12-v2')
+kw_model = KeyBERT(model='distilbert-base-nli-mean-tokens')
 
 
 def extract_keywords(text, top_n=5):
@@ -24,8 +24,8 @@ page = st.sidebar.selectbox(
 
 def send_data_to_server(paragraphs):
     url = "http://localhost:8000/indexing"
-    payload = {"dataset_name_or_docs": data_to_send}
-
+    # payload = {"dataset_name_or_docs": paragraphs}
+    payload = paragraphs
     try:
         response = requests.post(url, json=payload)
         if response.status_code == 200:

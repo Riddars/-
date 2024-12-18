@@ -1,4 +1,6 @@
 import json
+from typing import List
+
 from weaviate.classes.query import Filter
 
 from fastapi import APIRouter
@@ -11,12 +13,12 @@ router = APIRouter()
 
 
 @router.post("/indexing")
-async def index_docs_with_embeddings(json_input: IndexRequest):
+async def index_docs_with_embeddings(json_input: List[Document]):
     try:
         ensure_client_connected()
-        for item in json_input.dataset_name_or_docs:
-            document = Document(content=item.get("content", ""), dataframe=item.get("dataframe", None),
-                                keywords=item.get("keywords", []))
+        for item in json_input:
+            document = Document(content=item.content, dataframe=item.dataframe,
+                                keywords=item.keywords)
 
             embedding = embed_text(document.content)
             with client.batch.dynamic() as batch:

@@ -16,4 +16,4 @@ class Document(BaseModel):
 
 
 class IndexRequest(BaseModel):
-    dataset_name_or_docs: list
+    dataset_name_or_docs: List[Document]
