@@ -55,7 +55,7 @@ async def search_with_llm(query: SearchQuery):
         filters=(
             Filter.all_of([
                 Filter.by_property("dataframe").contains_any(filter_by),
-                Filter.by_property("keywords").contains_any(keywords)
+                # Filter.by_property("keywords").contains_any(keywords)
             ])
         ),
         vector=query_embedding,
