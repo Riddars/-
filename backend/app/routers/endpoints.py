@@ -1,13 +1,11 @@
 import json
 from typing import List
-
 from weaviate.classes.query import Filter
-
 from fastapi import APIRouter
 
 from ..database.database import ensure_client_connected, client
 from ..embending.embending import embed_text, extract_keywords
-from ..models.models import Document, SearchQuery, IndexRequest
+from ..models.models import Document, SearchQuery
 
 router = APIRouter()
 
@@ -64,18 +62,11 @@ async def search_with_llm(query: SearchQuery):
         limit=top_k
     )
 
-    print(client.collections.get("Data_base_paragraphs"))
-
     seen = set()
     unique_objects = []
     for obj in result.objects:
         obj_properties_json = json.dumps(obj.properties, sort_keys=True)
-        print(obj.vector)
-        data_object = paragraphs.query.fetch_object_by_id(
-            obj.uuid,
-            include_vector=True
-        )
-        print(f"Object with vector = {data_object.vector['default']}")
+
         if obj_properties_json not in seen:
             seen.add(obj_properties_json)
             unique_objects.append(obj.properties)
