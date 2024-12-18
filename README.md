@@ -127,7 +127,7 @@ docker-compose up
 
 > **Рекомендация:** не закрывайте окно до появления сообщения о завершении загрузки.
 <br>
-<img src="img/pic1.png" width="50%">
+<img src="img/pic1.png" width="100%">
 <br>
 
 ### Страница поиска
@@ -140,7 +140,7 @@ docker-compose up
     5. Ознакомьтесь с результатами поиска на странице.
 
 <br>
-<img src="img/pic2.png" width="40%">
+<img src="img/pic2.png" width="100%">
 <br>
 ---
 
