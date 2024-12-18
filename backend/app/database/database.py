@@ -3,19 +3,7 @@ from weaviate.auth import Auth
 from weaviate.client_base import ConnectionParams
 import weaviate.classes as wvc
 
-connection_params = ConnectionParams(
-    http={
-        "host": "localhost",  # Хост Weaviate-сервера
-        "port": 8080
-        ,
-        "secure": False,
-    },
-    grpc={
-        "host": "localhost",
-        "port": 50051,
-        "secure": False
-    }
-)
+
 weaviate_url = "https://yk800nalqwyizpyqiipfw.c0.europe-west3.gcp.weaviate.cloud"
 weaviate_api_key = "r7ulnPvkmroOfUB1LnvcD5xu5HViFUYtrDqM"
 
@@ -38,4 +26,6 @@ def client_article():
             vectorizer_config=wvc.config.Configure.Vectorizer.none())
     except Exception as e:
         print(e)
+
+
 
