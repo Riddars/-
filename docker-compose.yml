@@ -28,5 +28,18 @@ services:
       - ./backend:/app
     restart: always
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend:/app
+    restart: always
+
+
 volumes:
   weaviate_data:

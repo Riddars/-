@@ -23,7 +23,7 @@ page = st.sidebar.selectbox(
 
 
 def send_data_to_server(paragraphs):
-    url = "http://localhost:8000/indexing"
+    url = "http://backend:8000/indexing"
     # payload = {"dataset_name_or_docs": paragraphs}
     payload = paragraphs
     try:
@@ -37,7 +37,7 @@ def send_data_to_server(paragraphs):
 
 
 def send_search_request(query_text, keywords, tags, top_k):
-    url = "http://localhost:8000/searching"
+    url = "http://backend:8000/searching"
     payload = {
         "text": query_text,
         "keywords": keywords,

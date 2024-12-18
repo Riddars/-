@@ -1,13 +1,11 @@
 import json
 from typing import List
-
 from weaviate.classes.query import Filter
-
 from fastapi import APIRouter
 
 from ..database.database import ensure_client_connected, client
 from ..embending.embending import embed_text, extract_keywords
-from ..models.models import Document, SearchQuery, IndexRequest
+from ..models.models import Document, SearchQuery
 
 router = APIRouter()
 

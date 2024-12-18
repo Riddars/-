@@ -1,8 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
 
-from backend.app.database.database import client, client_article
-from backend.app.routers import endpoints
+from .database.database import client, client_article
+from .routers import endpoints
 
 app = FastAPI()
 app.include_router(endpoints.router)
